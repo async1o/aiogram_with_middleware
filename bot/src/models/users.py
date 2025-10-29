@@ -2,7 +2,7 @@ from typing import Union
 
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db.db import Base
+from src.db.db import Base
 
 
 class UserModel(Base):
@@ -16,3 +16,4 @@ class UserModel(Base):
     language_code: Mapped[Union[str, None]] = None
     username: Mapped[Union[str, None]] = None
     is_premium: Mapped[Union[str, None]] = None
+    is_blocked: Mapped[bool] = mapped_column(default=False)

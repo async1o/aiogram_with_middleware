@@ -6,8 +6,9 @@ from aiogram.types import Update
 from aiogram.types.user import User
 from sqlalchemy import insert, select
 
-from db.db import async_session_maker
-from models.users import UserModel
+from src.db.db import async_session_maker
+from src.models.users import UserModel
+from src.utils.config import settings
 
 class UserAddMiddleware(BaseMiddleware):
     async def add_user_to_db(self, user: User):
@@ -42,6 +43,19 @@ class UserAddMiddleware(BaseMiddleware):
     ):
         user = data['event_from_user']
         await self.add_user_to_db(user)
-    
+
+        try:
+            async with async_session_maker() as session:
+                q = select(UserModel.is_blocked).where(UserModel.user_id == str(user.id))
+                res = await session.execute(q)
+                row = res.first()
+                is_blocked = bool(row[0]) if row else False
+        except Exception:
+            is_blocked = False
+
+        is_admin = user.id in set(settings.ADMIN_IDS or [])
+        if is_blocked and not is_admin:
+            return None
+
         return await handler(event, data)
     

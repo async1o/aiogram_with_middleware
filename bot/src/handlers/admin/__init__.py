@@ -1,4 +1,4 @@
-__all__ = ("router", )
+__all__ = ("admin_router", )
 
 from aiogram import Router
 

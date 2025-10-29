@@ -1,0 +1,22 @@
+services:
+  bot:
+    restart: always
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+    network_mode: container:postgres
+
+  postgres:
+    container_name: postgres
+    image: postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_PASSWORD: DB_PASS

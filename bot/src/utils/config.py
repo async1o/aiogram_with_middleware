@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -9,6 +11,7 @@ class Setings(BaseSettings):
     DB_PORT: int
     DB_HOST: str
     DB_USER: str
+    ADMIN_IDS: List[int] = []
 
     @property
     def get_db_url(self):
