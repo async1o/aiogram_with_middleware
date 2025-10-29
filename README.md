@@ -16,7 +16,7 @@ git clone git@github.com:async1o/aiogram_with_middleware.git
 cd aiogram_with_middleware.git
 ```
 
-4. Создайте файл .env и заполните необходимые поля:
+3. Создайте файл .env и заполните необходимые поля:
 
 ```
 TOKEN=
