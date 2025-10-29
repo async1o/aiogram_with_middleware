@@ -48,5 +48,7 @@ docker compose up --build
 * **/broadcast <текст>** - Осуществляет рассылку по всем 
 
 * **/block <username|user_id>** - Блокирует пользователя
-* **/unblock <username|user_id** - Разблокирует пользователя
+* **/unblock <username|user_id>** - Разблокирует пользователя
 * **/blocked_list** - Выводит список заблокированных пользователей
+* **/add_admin <username|user_id>** - Добавляет админа
+* **/remove_admin <username|user_id>** - Удаляет админа
