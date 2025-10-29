@@ -46,14 +46,16 @@ class UserAddMiddleware(BaseMiddleware):
 
         try:
             async with async_session_maker() as session:
-                q = select(UserModel.is_blocked).where(UserModel.user_id == str(user.id))
+                q = select(UserModel.is_blocked, UserModel.is_admin).where(UserModel.user_id == str(user.id))
                 res = await session.execute(q)
                 row = res.first()
                 is_blocked = bool(row[0]) if row else False
+                db_is_admin = bool(row[1]) if row else False
         except Exception:
             is_blocked = False
+            db_is_admin = False
 
-        is_admin = user.id in set(settings.ADMIN_IDS or [])
+        is_admin = user.id in set(settings.ADMIN_IDS or []) or db_is_admin
         if is_blocked and not is_admin:
             return None
 

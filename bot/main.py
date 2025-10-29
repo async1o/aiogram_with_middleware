@@ -40,6 +40,8 @@ async def main():
         BotCommand(command="block", description="Заблокировать пользователя"),
         BotCommand(command="unblock", description="Разблокировать пользователя"),
         BotCommand(command="blocked_list", description="Список заблокированных"),
+        BotCommand(command="add_admin", description="Назначить админом"),
+        BotCommand(command="remove_admin", description="Снять админа"),
     ]
 
 

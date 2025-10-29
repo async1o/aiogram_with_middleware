@@ -17,3 +17,4 @@ class UserModel(Base):
     username: Mapped[Union[str, None]] = None
     is_premium: Mapped[Union[str, None]] = None
     is_blocked: Mapped[bool] = mapped_column(default=False)
+    is_admin: Mapped[bool] = mapped_column(default=False)
