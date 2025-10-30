@@ -13,7 +13,7 @@ git clone git@github.com:async1o/aiogram_with_middleware.git
 2. Перейдите в директорию проекта:
 
 ```
-cd aiogram_with_middleware.git
+cd aiogram_with_middleware
 ```
 
 3. Создайте файл .env и заполните необходимые поля:
