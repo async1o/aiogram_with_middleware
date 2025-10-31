@@ -29,19 +29,7 @@ async def main():
 
     user_commands = [
         BotCommand(command="start", description="Старт"),
-        BotCommand(command="catalog", description="Каталог"),
-        BotCommand(command="cart", description="Корзина"),
-    ]
-
-    admin_extra_commands = [
-        BotCommand(command="admin", description="Админ-панель"),
-        BotCommand(command="users_count", description="Пользователи в БД"),
-        BotCommand(command="broadcast", description="Рассылка"),
-        BotCommand(command="block", description="Заблокировать пользователя"),
-        BotCommand(command="unblock", description="Разблокировать пользователя"),
-        BotCommand(command="blocked_list", description="Список заблокированных"),
-        BotCommand(command="add_admin", description="Назначить админом"),
-        BotCommand(command="remove_admin", description="Снять админа"),
+        BotCommand(command="help", description="Помощь"),
     ]
 
 
@@ -49,11 +37,10 @@ async def main():
 
     try:
         for admin_id in (settings.ADMIN_IDS or []):
-            await bot.set_my_commands(commands=user_commands + admin_extra_commands, scope=BotCommandScopeChat(chat_id=admin_id))
+            await bot.set_my_commands(commands=user_commands, scope=BotCommandScopeChat(chat_id=admin_id))
     except Exception:
         pass
 
-    await reset_tables()
 
     try:
         await dp.start_polling(bot)

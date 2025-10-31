@@ -1,8 +1,13 @@
 from typing import Dict, List, TypedDict
 
 from aiogram import Router, F
-from aiogram.types import Message
+from aiogram.filters import CommandStart, Command
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from src.utils.config import settings
+from sqlalchemy import select
+from src.db.db import async_session_maker
+from src.models.users import UserModel
 
 
 class Product(TypedDict):
@@ -48,17 +53,49 @@ def format_price_minor(price_minor: int) -> str:
 router = Router(name="user_messages")
 
 
-@router.message(F.text == "/start")
+def _is_admin_local(user_id: int) -> bool:
+    return user_id in set(settings.ADMIN_IDS or [])
+
+
+async def _db_is_admin(user_id: int) -> bool:
+    async with async_session_maker() as session:
+        q = select(UserModel.is_admin).where(UserModel.user_id == str(user_id))
+        res = await session.execute(q)
+        row = res.first()
+    return bool(row and row[0])
+
+
+def build_main_menu(is_admin: bool = False) -> ReplyKeyboardMarkup:
+    buttons = [
+        [KeyboardButton(text="📦 Каталог"), KeyboardButton(text="🛒 Корзина")],
+        [KeyboardButton(text="ℹ️ Помощь")],
+    ]
+    if is_admin:
+        buttons.append([KeyboardButton(text="🛠 Админ-панель")])
+    return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
+
+
+@router.message(CommandStart())
 async def cmd_start(message: Message):
+    #is_admin = _is_admin_local(message.from_user.id) or await _db_is_admin(message.from_user.id)
     await message.answer(
-        "Добро пожаловать!\n"
-        "Доступные команды:\n"
-        "- /catalog — каталог товаров\n"
-        "- /cart — корзина"
+        "Добро пожаловать! Выберите действие через меню ниже.",
+        reply_markup=build_main_menu()
     )
 
 
-@router.message(F.text == "/catalog")
+@router.message(Command("help"))
+@router.message(F.text.in_({"help", "/help", "ℹ️ Помощь"}))
+async def cmd_help(message: Message):
+    await message.answer(
+        "Помощь:\n"
+        "— Нажмите ‘📦 Каталог’, чтобы просмотреть товары.\n"
+        "— Нажмите ‘🛒 Корзина’, чтобы увидеть выбранные товары.\n"
+        "— Администраторы могут открыть ‘🛠 Админ-панель’."
+    )
+
+
+@router.message(F.text.in_({"📦 Каталог"}))
 async def cmd_catalog(message: Message):
     kb = InlineKeyboardBuilder()
     for p in PRODUCTS:
@@ -67,11 +104,11 @@ async def cmd_catalog(message: Message):
     await message.answer("Каталог товаров:", reply_markup=kb.as_markup())
 
 
-@router.message(F.text == "/cart")
+@router.message(F.text.in_({"🛒 Корзина"}))
 async def cmd_cart(message: Message):
     cart = get_cart(message.from_user.id)
     if not cart:
-        await message.answer("Ваша корзина пуста. Откройте /catalog чтобы выбрать товары.")
+        await message.answer("Ваша корзина пуста. Нажмите ‘📦 Каталог’, чтобы выбрать товары.")
         return
 
     lines = ["Корзина:"]
